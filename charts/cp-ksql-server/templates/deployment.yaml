@@ -44,11 +44,12 @@ spec:
           - -XX:+UseCGroupMemoryLimitForHeap
           - -XX:MaxRAMFraction=1
           - -XshowSettings:vm
-          - -jar
-          - {{ .Values.prometheus.jmx.jar | quote }}
-          - {{ .Values.prometheus.jmx.port | quote }}
           - {{ .Values.prometheus.jmx.options | quote }}
-          - /etc/jmx-ksql-server/jmx-ksql-server-prometheus.yml
+          - '-javaagent:/opt/jmx_prometheus_javaagent.jar={{ .Values.prometheus.jmx.port | quote }}:/etc/jmx-ksql-server/jmx-ksql-server-prometheus.yml'
+          - '-jar'
+          - 'jmx_prometheus_httpserver.jar'
+          - '5557'
+          - '/etc/jmx-ksql-server/jmx-ksql-server-prometheus.yml'
           ports:
           - containerPort: {{ .Values.prometheus.jmx.port }}
           resources:
