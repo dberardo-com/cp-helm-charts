@@ -45,8 +45,9 @@ spec:
           - -XX:MaxRAMFraction=1
           - -XshowSettings:vm
           - -jar
-          - jmx_prometheus_httpserver.jar
+          - {{ .Values.prometheus.jmx.jar | quote }}
           - {{ .Values.prometheus.jmx.port | quote }}
+          - {{ .Values.prometheus.jmx.options | quote }}
           - /etc/jmx-ksql-server/jmx-ksql-server-prometheus.yml
           ports:
           - containerPort: {{ .Values.prometheus.jmx.port }}
