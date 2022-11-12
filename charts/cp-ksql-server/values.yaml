@@ -63,11 +63,11 @@ prometheus:
   ## ref: https://github.com/prometheus/jmx_exporter
   jmx:
     enabled: true
-    image: solsson/kafka-prometheus-jmx-exporter@sha256
-    imageTag: 6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143
+    image: invideadev/ksqldb-server
+    imageTag: jmx-exporter
     imagePullPolicy: IfNotPresent
     port: 5556
-
+    options: ""
     ## Resources configuration for the JMX exporter container.
     ## See the `resources` documentation above for details.
     resources: {}
