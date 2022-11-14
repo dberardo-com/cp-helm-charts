@@ -34,30 +34,6 @@ spec:
       {{- end }}
     spec:
       containers:
-        {{- if .Values.prometheus.jmx.enabled }}
-        - name: prometheus-jmx-exporter
-          image: "{{ .Values.prometheus.jmx.image }}:{{ .Values.prometheus.jmx.imageTag }}"
-          imagePullPolicy: "{{ .Values.prometheus.jmx.imagePullPolicy }}"
-          command:
-          - java
-          - -XX:+UnlockExperimentalVMOptions
-          - -XX:+UseCGroupMemoryLimitForHeap
-          - -XX:MaxRAMFraction=1
-          - -XshowSettings:vm
-          - {{ .Values.prometheus.jmx.options | quote }}
-          - '-javaagent:/opt/jmx_prometheus_javaagent.jar={{ .Values.prometheus.jmx.port | quote }}:/etc/jmx-ksql-server/jmx-ksql-server-prometheus.yml'
-          - '-jar'
-          - 'jmx_prometheus_httpserver.jar'
-          - '5557'
-          - '/etc/jmx-ksql-server/jmx-ksql-server-prometheus.yml'
-          ports:
-          - containerPort: {{ .Values.prometheus.jmx.port }}
-          resources:
-{{ toYaml .Values.prometheus.jmx.resources | indent 12 }}
-          volumeMounts:
-          - name: jmx-config
-            mountPath: /etc/jmx-ksql-server
-        {{- end }}
         - name: {{ template "cp-ksql-server.name" . }}
           image: "{{ .Values.image }}:{{ .Values.imageTag }}"
           imagePullPolicy: "{{ .Values.imagePullPolicy }}"
@@ -76,6 +52,10 @@ spec:
           - name: ksql-queries
             mountPath: /etc/ksql/queries
           {{- end }}
+          {{- if .Values.prometheus.jmx.enabled }}
+          - name: jmx-config
+            mountPath: /etc/jmx-ksql-server
+          {{- end }}
           env:
           - name: KSQL_BOOTSTRAP_SERVERS
             value: {{ template "cp-ksql-server.kafka.bootstrapServers" . }}
@@ -85,6 +65,10 @@ spec:
             value: {{ template "cp-ksql-server.cp-schema-registry.service-name" . }}
           - name: KSQL_HEAP_OPTS
             value: "{{ .Values.heapOptions }}"
+          {{- if .Values.prometheus.jmx.enabled }}
+          - name: KSQL_OPTS
+            value: "-javaagent:/opt/jmx_prometheus_javaagent.jar=5556:/etc/jmx-ksql-server/jmx-ksql-server-prometheus.yml"
+          {{- end }}
           {{- if .Values.ksql.headless }}
           - name: KSQL_KSQL_QUERIES_FILE
             value: /etc/ksql/queries/queries.sql
